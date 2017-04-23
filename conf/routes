@@ -4,3 +4,8 @@
 
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index
+GET     /v1/cars                    controllers.CarController.index
+GET     /v1/cars/:id                controllers.CarController.read(id)
+POST    /v1/cars                    controllers.CarController.create
+PUT     /v1/cars/:id                controllers.CarController.update(id)
+DELETE  /v1/cars/:id                controllers.CarController.delete(id)
