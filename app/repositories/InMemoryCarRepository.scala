@@ -1,7 +1,6 @@
 package repositories
 
 import models.Car
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class InMemoryCarRepository extends CarRepository {
