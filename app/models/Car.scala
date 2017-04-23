@@ -16,10 +16,17 @@ case class Car(
 )
 
 object Car {
+//  TODO: implement Repositories
   var list: Map[String, Car] = Map(
     "1" -> Car("1", "VW Golf", Gasoline, 1000, `new` = true, None, None),
     "2" -> Car("2", "BMW 540", Diesel, 5000, `new` = false, Some(3500), Some(LocalDate.now()))
   )
+
+//  TODO: implement Repositories
+  def create(c: Car): String = {
+    list = list + (c.id -> c)
+    c.id
+  }
 
   implicit val carWrites: Writes[Car] = (
     (JsPath \ "id").write[String] and
@@ -30,25 +37,14 @@ object Car {
     (JsPath \ "mileage").writeNullable[Int] and
     (JsPath \ "firstRegistration").writeNullable[LocalDate]
   )(unlift(Car.unapply))
-}
 
-sealed trait Fuel
-
-case object Gasoline extends Fuel {
-  override def toString: String = "gasoline"
-}
-
-case object Diesel extends Fuel {
-  override def toString: String = "diesel"
-}
-
-object Fuel {
-  def apply(fuelType: String): Fuel = fuelType match {
-    case "gasoline" => Gasoline
-    case "diesel" => Diesel
-  }
-
-  implicit val fuelWrites: Writes[Fuel] = new Writes[Fuel] {
-    override def writes(o: Fuel): JsValue = JsString(o.toString)
-  }
+  implicit val carReads: Reads[Car] = (
+    (JsPath \ "id").read[String] and
+      (JsPath \ "title").read[String] and
+      (JsPath \ "fuel").read[Fuel] and
+      (JsPath \ "price").read[Int] and
+      (JsPath \ "new").read[Boolean] and
+      (JsPath \ "mileage").readNullable[Int] and
+      (JsPath \ "firstRegistration").readNullable[LocalDate]
+  )(Car.apply _)
 }
