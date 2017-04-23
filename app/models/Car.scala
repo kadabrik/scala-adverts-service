@@ -1,7 +1,8 @@
 package models
 
 import java.time.LocalDate
-
+import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -47,4 +48,9 @@ object Car {
       (JsPath \ "mileage").readNullable[Int] and
       (JsPath \ "firstRegistration").readNullable[LocalDate]
   )(Car.apply _)
+
+  val predefinedCars = Seq(
+    Car(UUID.randomUUID().toString, "VW Golf", Gasoline, 1000, `new` = true, None, None),
+    Car(UUID.randomUUID().toString, "BMW 540", Diesel, 5000, `new` = false, Some(3500), Some(LocalDate.now()))
+  )
 }
