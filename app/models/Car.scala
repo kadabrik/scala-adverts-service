@@ -2,7 +2,6 @@ package models
 
 import java.time.LocalDate
 import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -17,17 +16,6 @@ case class Car(
 )
 
 object Car {
-//  TODO: implement Repositories
-  var list: Map[String, Car] = Map(
-    "1" -> Car("1", "VW Golf", Gasoline, 1000, `new` = true, None, None),
-    "2" -> Car("2", "BMW 540", Diesel, 5000, `new` = false, Some(3500), Some(LocalDate.now()))
-  )
-
-//  TODO: implement Repositories
-  def create(c: Car): String = {
-    list = list + (c.id -> c)
-    c.id
-  }
 
   implicit val carWrites: Writes[Car] = (
     (JsPath \ "id").write[String] and

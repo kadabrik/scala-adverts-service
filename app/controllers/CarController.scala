@@ -46,7 +46,7 @@ class CarController @Inject() (carRepository: CarRepository) extends Controller 
   }
 
   def delete(id: String) = Action.async {
-    carRepository.delete(id).map(id => Ok(Json.obj("result" -> id)))
+    carRepository.delete(id).map(id => Ok(Json.obj("deleted" -> id)))
   }
 
 }
