@@ -50,6 +50,14 @@ class CarControllerSpec extends PlaySpec with OneAppPerTest {
       status(result) mustBe BAD_REQUEST
     }
 
+    "return CONFLICT if car with desired ID already exists in storage (POST)" in new TestContext {
+      val existingId = Car.predefinedCars.head.id
+      val car = Car(existingId, "Renault Megane", Gasoline, 1000, `new` = true, None, None)
+      val result = route(app, FakeRequest(POST, controllerPath).withJsonBody(carToJsObject(car))).get
+
+      status(result) mustBe CONFLICT
+    }
+
     "update Car by ID via PUT request and successfully fetch it by ID afterwards" in new TestContext {
       val existingCar = Car.predefinedCars.head
       val updatedCar = existingCar.copy(title = "Seat Leon")
@@ -78,8 +86,17 @@ class CarControllerSpec extends PlaySpec with OneAppPerTest {
     }
 
     "delete Car by ID via DELETE request" in new TestContext {
-      val result = route(app, FakeRequest(DELETE, controllerPath + "/non-existing-id")).get
+      val existingId = Car.predefinedCars.head.id
+      val result = route(app, FakeRequest(DELETE, controllerPath + "/" + existingId)).get
+
       status(result) mustBe OK
+      contentAsJson(result) mustBe Json.obj("deleted" -> existingId)
+    }
+
+    "return NOT_FOUND if car we are trying to delete does not exist (DELETE)" in new TestContext {
+      val result = route(app, FakeRequest(DELETE, controllerPath + "/non-existing-id")).get
+
+      status(result) mustBe NOT_FOUND
     }
 
   }

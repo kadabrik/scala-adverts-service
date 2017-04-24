@@ -28,7 +28,10 @@ class CarController @Inject() (carRepository: CarRepository) extends Controller 
         Future.successful(BadRequest(Json.obj("errors" -> JsError.toJson(errors))))
       },
       car => {
-        carRepository.create(car).map(id => Created(Json.obj("result" -> id)))
+        checkCarExists(car.id)(
+          Future.successful(Conflict),
+          carRepository.create(car).map(id => Created(Json.obj("result" -> id)))
+        )
       }
     )
   }
@@ -40,13 +43,26 @@ class CarController @Inject() (carRepository: CarRepository) extends Controller 
         Future.successful(BadRequest(Json.obj("errors" -> JsError.toJson(errors))))
       },
       car => {
-        carRepository.update(id, car).map(id => Ok(Json.obj("result" -> id)))
+        checkCarExists(id)(
+          carRepository.update(id, car).map(id => Ok(Json.obj("result" -> id))),
+          Future.successful(NotFound)
+        )
       }
     )
   }
 
   def delete(id: String) = Action.async {
-    carRepository.delete(id).map(id => Ok(Json.obj("deleted" -> id)))
+    checkCarExists(id)(
+      carRepository.delete(id).map(id => Ok(Json.obj("deleted" -> id))),
+      Future.successful(NotFound)
+    )
+  }
+
+  private def checkCarExists(id: String)(found: => Future[Result], notFound: => Future[Result]) = {
+    carRepository.fetchOne(id).flatMap({
+      case Some(_) => found
+      case None => notFound
+    })
   }
 
 }
