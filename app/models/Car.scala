@@ -2,8 +2,11 @@ package models
 
 import java.time.LocalDate
 import java.util.UUID
-import play.api.libs.json._
+
+import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import play.api.libs.json._
 
 case class Car(
   id: String,
@@ -31,10 +34,28 @@ object Car {
     (JsPath \ "id").read[String] and
       (JsPath \ "title").read[String] and
       (JsPath \ "fuel").read[Fuel] and
-      (JsPath \ "price").read[Int] and
+      (JsPath \ "price").read[Int](min(0)) and
       (JsPath \ "new").read[Boolean] and
-      (JsPath \ "mileage").readNullable[Int] and
-      (JsPath \ "firstRegistration").readNullable[LocalDate]
+      (JsPath \ "new").read[Boolean].flatMap({
+        case true =>
+          (JsPath \ "mileage").readNullable[Int].filter(
+            ValidationError("error.unexpected_mileage.must_be_omitted_for_a_new_car")
+          )(_.isEmpty)
+        case false =>
+          (JsPath \ "mileage").readNullable[Int](min(0)).filter(
+            ValidationError("error.expected_mileage.must_be_present_for_a_used_car")
+          )(_.isDefined)
+      }) and
+      (JsPath \ "new").read[Boolean].flatMap({
+        case true =>
+          (JsPath \ "firstRegistration").readNullable[LocalDate].filter(
+            ValidationError("error.unexpected_firstRegistration.must_be_omitted_for_a_new_car")
+          )(_.isEmpty)
+        case false =>
+          (JsPath \ "firstRegistration").readNullable[LocalDate].filter(
+            ValidationError("error.expected_firstRegistration.must_be_present_for_a_used_car")
+          )(_.isDefined)
+      })
   )(Car.apply _)
 
   val predefinedCars = Seq(

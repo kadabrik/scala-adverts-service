@@ -36,7 +36,7 @@ object Fuel {
         val fuelType = Fuel(s)
 
         fuelType match {
-          case Unspecified => JsError(Seq(JsPath() -> Seq(ValidationError("error.expected.properfuel"))))
+          case Unspecified => JsError(Seq(JsPath() -> Seq(ValidationError("error.expected.proper_fuel"))))
           case _ => JsSuccess(fuelType)
         }
       case _ => JsError(Seq(JsPath() -> Seq(ValidationError("error.expected.jsstring"))))
