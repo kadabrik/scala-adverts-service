@@ -5,7 +5,7 @@ import repositories.InMemoryCarRepository
 import org.specs2.mutable._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CarRepositorySpec extends Specification with ScalaFutures {
+class InMemoryCarRepositorySpec extends Specification with ScalaFutures {
 
   "CarRepository" should {
 
@@ -63,6 +63,20 @@ class CarRepositorySpec extends Specification with ScalaFutures {
       whenReady(result) { case (fetchedId, fetchedCar) =>
         fetchedId mustEqual id
         fetchedCar must beSome(carModified)
+      }
+    }
+
+    "delete the car by ID" in {
+      val repository = new InMemoryCarRepository
+      val id = Car.predefinedCars.head.id
+
+      val result = for {
+        _ <- repository.delete(id)
+        fetchedCar <- repository.fetchOne(id)
+      } yield fetchedCar
+
+      whenReady(result) { fetchedCar =>
+        fetchedCar must beNone
       }
     }
 
